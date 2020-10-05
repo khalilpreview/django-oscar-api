@@ -208,9 +208,18 @@ class LoginTest(APITest):
         self.hlogin("nobody", "nobody", session_id="nobody")
         self.response = self.get("api-login")
         self.response.assertStatusEqual(405)
-        self.response = self.get("api-login", session_id="nobody", authenticated=True)
+        self.response = self.get(
+            "api-login", session_id="nobody", authenticated=True
+        )
         self.response.assertStatusEqual(200)
         self.response.assertValueEqual("username", "nobody")
+
+        with self.settings(OSCARAPI_EXPOSE_USER_DETAILS=False):
+            self.response = self.get(
+                "api-login", session_id="nobody", authenticated=True
+            )
+            self.assertEqual(self.response.status_code, 204)
+            self.assertIsNone(self.response.data)
 
 
 class SessionTest(APITest):
